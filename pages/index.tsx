@@ -1,17 +1,42 @@
 import Head from "next/head";
+import useSWR from "swr";
+import { useUser } from "@auth0/nextjs-auth0";
 
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw Error("fouck you!!!");
+  }
+  const data: { name: string } = await res.json();
+
+  return data;
+};
 
 export default function Home() {
+  const { user, error, isLoading } = useUser();
+  if (isLoading) return <div>Loading...</div>;
+
+  if (error) return <div>{error.message}</div>;
+  if (user) {
+    return (
+      <div>
+        <h2>{user.name}</h2>
+        <p>{user.email}</p>
+        <a href="/api/auth/logout">Logout</a>
+      </div>
+    );
+  }
   return (
     <div className="container">
       <Head>
-        <title>Create Next App</title>
+        <title>Home</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
         <h1 className="title">
           Welcome to <a href="https://nextjs.org">Next.js!</a>
+          <a href="/api/auth/login">Login</a>;
         </h1>
 
         <p className="description">
